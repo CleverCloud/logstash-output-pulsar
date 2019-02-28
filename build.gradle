@@ -33,7 +33,9 @@ repositories {
 }
 
 dependencies {
-  compile 'org.apache.pulsar:pulsar-client:2.0.1-incubating'
+  compile 'org.apache.pulsar:pulsar-client-api:2.3.0'
+  compile 'org.apache.pulsar:pulsar-client:2.3.0'
+  compile 'org.apache.pulsar:protobuf-shaded:2.1.1-incubating'
   compile 'com.github.luben:zstd-jni:1.3.7-3'
   compile 'org.slf4j:slf4j-api:1.7.25'
   compile 'org.lz4:lz4-java:1.5.0'
