@@ -1,5 +1,4 @@
 Gem::Specification.new do |s|
-
   s.name            = 'logstash-output-pulsar'
   s.version         = '0.1.0'
   s.licenses        = ['MIT']
