@@ -5,7 +5,7 @@ require 'logstash-output-pulsar_jars.rb'
 
 java_import org.apache.pulsar.client.api.PulsarClient
 java_import org.apache.pulsar.client.api.CompressionType
-#java_import org.apache.pulsar.client.internal.DefaultImplementation
+java_import org.apache.pulsar.client.impl.auth.AuthenticationBasic
 java_import java.util.concurrent.TimeUnit
 
 class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
