@@ -5,6 +5,7 @@ require 'logstash-output-pulsar_jars.rb'
 
 java_import org.apache.pulsar.client.api.PulsarClient
 java_import org.apache.pulsar.client.api.CompressionType
+#java_import org.apache.pulsar.client.internal.DefaultImplementation
 java_import java.util.concurrent.TimeUnit
 
 class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
@@ -179,15 +180,20 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
         .build();
 
       pulsar_producer = pulsar_client.newProducer()
-        .addEncryptionKey(@public_encryption_key)
         .batchingMaxMessages(@batch_max_size)
         .batchingMaxPublishDelay(@batch_max_publish_delay, TimeUnit::MILLISECONDS)
         .blockIfQueueFull(@block_if_queue_full)
         .compressionType(CompressionType::valueOf(@compression_type.upcase))
-        .properties(java.util.HashMap.new(@producer_properties))
-        .sendTimeout(@send_timeout, TimeUnit::SECONDS)
         .topic(@topic_id)
+        .sendTimeout(@send_timeout, TimeUnit::SECONDS)
         .create();
+
+      if (@public_encryption_key.size > 0)
+        pulsar_producer.addEncryptionKey(@public_encryption_key)
+      end
+      if (@producer_properties.keys.size > 0)
+        pulsar_producer.properties(java.util.HashMap.new(@producer_properties))
+      end
     rescue => e
       logger.error("Unable to create Pulsar producer from given configuration",
                    :pulsar_error_message => e,
