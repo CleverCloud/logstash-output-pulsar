@@ -5,7 +5,7 @@ set -ex
 if [ -n "${PULSAR_VERSION+1}" ]; then
   echo "PULSAR_VERSION is $PULSAR_VERSION"
 else
-  PULSAR_VERSION=2.2.1
+  PULSAR_VERSION=2.3.0
 fi
 
 echo "Downloading pulsar version $PULSAR_VERSION."
