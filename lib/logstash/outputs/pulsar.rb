@@ -186,7 +186,6 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
         .compressionType(CompressionType::valueOf(@compression_type.upcase))
         .topic(@topic_id)
         .sendTimeout(@send_timeout, TimeUnit::SECONDS)
-        .create();
 
       if (@public_encryption_key.size > 0)
         pulsar_producer.addEncryptionKey(@public_encryption_key)
@@ -194,6 +193,8 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
       if (@producer_properties.keys.size > 0)
         pulsar_producer.properties(java.util.HashMap.new(@producer_properties))
       end
+
+      pulsar_producer.create();
     rescue => e
       logger.error("Unable to create Pulsar producer from given configuration",
                    :pulsar_error_message => e,
