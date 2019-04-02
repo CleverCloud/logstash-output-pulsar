@@ -125,7 +125,7 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
       end
 
       # No failures? Cool. Let's move on.
-      break if failures.empty?
+      break
 
       # Otherwise, retry with any failed transmissions
       if remaining.nil? || remaining >= 0
