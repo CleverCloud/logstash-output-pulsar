@@ -180,7 +180,7 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
         .tlsTrustCertsFilePath(@tls_trust_certs_file_path)
         .build();
 
-      pulsar_producer = pulsar_client.newProducer(StringSchema)
+      pulsar_producer = pulsar_client.newProducer(StringSchema::new)
         .batchingMaxMessages(@batch_max_size)
         .batchingMaxPublishDelay(@batch_max_publish_delay, TimeUnit::MILLISECONDS)
         .blockIfQueueFull(@block_if_queue_full)
