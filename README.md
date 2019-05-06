@@ -15,3 +15,9 @@ bundle install
 bundle exec rake vendor
 bundle exec rspec
 ```
+
+## Informations
+
+```bash
+jruby -S <command>
+```
