@@ -6,6 +6,7 @@ require 'logstash-output-pulsar_jars.rb'
 java_import org.apache.pulsar.client.api.PulsarClient
 java_import org.apache.pulsar.client.api.CompressionType
 java_import org.apache.pulsar.client.impl.auth.AuthenticationBasic
+java_import org.apache.pulsar.client.impl.schema.StringSchema
 java_import java.util.concurrent.TimeUnit
 
 class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
@@ -179,7 +180,7 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
         .tlsTrustCertsFilePath(@tls_trust_certs_file_path)
         .build();
 
-      pulsar_producer = pulsar_client.newProducer(String.class)
+      pulsar_producer = pulsar_client.newProducer(new StringSchema())
         .batchingMaxMessages(@batch_max_size)
         .batchingMaxPublishDelay(@batch_max_publish_delay, TimeUnit::MILLISECONDS)
         .blockIfQueueFull(@block_if_queue_full)
