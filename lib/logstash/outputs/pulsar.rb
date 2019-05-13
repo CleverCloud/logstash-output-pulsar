@@ -8,6 +8,7 @@ java_import org.apache.pulsar.client.api.CompressionType
 java_import org.apache.pulsar.client.impl.auth.AuthenticationBasic
 java_import org.apache.pulsar.client.impl.schema.StringSchema
 java_import java.util.concurrent.TimeUnit
+java_import java.nio.charset.StandardCharsets
 
 class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
   declare_threadsafe!
@@ -63,7 +64,7 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
     @producer = create_producer
 
     @codec.on_event do |event, data|
-      write_to_pulsar(event, data.to_java.getBytes(), java.util.HashMap.new(@message_properties))
+      write_to_pulsar(event, data.to_java.getBytes(StandardCharsets::UTF_8), java.util.HashMap.new(@message_properties))
     end
   end
 
