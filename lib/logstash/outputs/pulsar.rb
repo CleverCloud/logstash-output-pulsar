@@ -146,20 +146,20 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
   end
 
   private
-  def symbolize(myhash)
-    Hash[myhash.map{|(k,v)| [k.to_sym,v]}]
+  def sprintf_hash(event, myhash)
+    Hash[myhash.map{|(k,v)| [k,event.sprintf(v)]}]
   end
 
   def write_to_pulsar(event, data)
     if @message_key.nil?
       record = @producer.newMessage()
         .value(data.to_java)
-        .properties(java.util.HashMap.new(symbolize(@message_properties)))
+        .properties(java.util.HashMap.new(sprintf_hash(event, @message_properties)))
     else
       record = @producer.newMessage()
         .key(event.sprintf(@message_key))
         .value(data.to_java)
-        .properties(java.util.HashMap.new(symbolize(@message_properties)))
+        .properties(java.util.HashMap.new(sprintf_hash(event, @message_properties)))
     end
 
     prepare(record)
