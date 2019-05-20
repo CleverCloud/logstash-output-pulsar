@@ -64,7 +64,7 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
     @producer = create_producer
 
     @codec.on_event do |event, data|
-      write_to_pulsar(event, data.to_java, java.util.HashMap.new(@message_properties))
+      write_to_pulsar(event, data)
     end
   end
 
@@ -146,16 +146,20 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
   end
 
   private
-  def write_to_pulsar(event, serialized_data, serialized_properties)
+  def symbolize(myhash)
+    Hash[myhash.map{|(k,v)| [k.to_sym,v]}]
+  end
+
+  def write_to_pulsar(event, data)
     if @message_key.nil?
       record = @producer.newMessage()
-        .value(serialized_data)
-        .properties(serialized_properties)
+        .value(data.to_java)
+        .properties(java.util.HashMap.new(symbolize(@message_properties)))
     else
       record = @producer.newMessage()
         .key(event.sprintf(@message_key))
-        .value(serialized_data)
-        .properties(serialized_properties)
+        .value(data.to_java)
+        .properties(java.util.HashMap.new(symbolize(@message_properties)))
     end
 
     prepare(record)
