@@ -44,6 +44,7 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
   # pulsar message configuration
   config :message_key, :validate => :string
   config :message_properties, :validate => :hash, :default => {}
+  config :message, :validate => :string
 
   # pulsar plugin configuration
   config :retries, :validate => :number
@@ -153,12 +154,12 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
   def write_to_pulsar(event, data)
     if @message_key.nil?
       record = @producer.newMessage()
-        .value(data.to_java)
+        .value(event)
         .properties(java.util.HashMap.new(sprintf_hash(event, @message_properties)))
     else
       record = @producer.newMessage()
         .key(event.sprintf(@message_key))
-        .value(data.to_java)
+        .value(event)
         .properties(java.util.HashMap.new(sprintf_hash(event, @message_properties)))
     end
 
