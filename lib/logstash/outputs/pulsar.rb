@@ -15,8 +15,6 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
 
   config_name 'pulsar'
 
-  default :codec, 'plain'
-
   # pulsar client configuration
   config :allow_tls_insecure_connection, :validate => :boolean, :default => false
   config :auth_plugin_class_name, :validate => :string, :default => ""
@@ -128,7 +126,7 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
       end
 
       # No failures? Cool. Let's move on.
-      break
+      break if failures.empty?
 
       # Otherwise, retry with any failed transmissions
       if remaining.nil? || remaining >= 0
@@ -152,14 +150,15 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
   end
 
   def write_to_pulsar(event, data)
+    print(event.to_json)
     if @message_key.nil?
       record = @producer.newMessage()
-        .value(event.to_s)
+        .value(event.to_json)
         .properties(java.util.HashMap.new(sprintf_hash(event, @message_properties)))
     else
       record = @producer.newMessage()
         .key(event.sprintf(@message_key))
-        .value(event.to_s)
+        .value(event.to_json)
         .properties(java.util.HashMap.new(sprintf_hash(event, @message_properties)))
     end
 

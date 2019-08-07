@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name            = 'logstash-output-pulsar'
-  s.version         = '0.6.12'
+  s.version         = '1.0.0'
   s.licenses        = ['MIT']
   s.summary         = "Writes events to a pulsar topic"
   s.description     = "This gem is a Logstash plugin required to be installed on top of the Logstash core pipeline using $LS_HOME/bin/logstash-plugin install gemname. This gem is not a stand-alone program"
