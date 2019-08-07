@@ -154,12 +154,12 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
   def write_to_pulsar(event, data)
     if @message_key.nil?
       record = @producer.newMessage()
-        .value(event)
+        .value(event.to_s)
         .properties(java.util.HashMap.new(sprintf_hash(event, @message_properties)))
     else
       record = @producer.newMessage()
         .key(event.sprintf(@message_key))
-        .value(event)
+        .value(event.to_s)
         .properties(java.util.HashMap.new(sprintf_hash(event, @message_properties)))
     end
 
