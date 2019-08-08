@@ -150,7 +150,6 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
   end
 
   def write_to_pulsar(event, data)
-    print(event.to_json)
     if @message_key.nil?
       record = @producer.newMessage()
         .value(event.to_json)
