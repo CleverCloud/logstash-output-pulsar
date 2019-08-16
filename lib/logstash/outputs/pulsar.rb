@@ -121,7 +121,9 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
           future.get()
         rescue => e
           logger.warn("PulsarProducer.send() failed: #{e}", :exception => e)
-          failures << batch[i]
+          if !e.to_s.include? "Java.lang.IllegalStateException: recycled already"
+            failures << batch[i]
+          end
         end
       end
 
