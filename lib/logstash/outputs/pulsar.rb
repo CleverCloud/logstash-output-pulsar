@@ -111,6 +111,8 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
         begin
           record.sendAsync()
         rescue org.apache.pulsar.client.api.PulsarClientException => e
+          logger.error("PulsarProducer.send() failed: #{e}", :exception => e)
+          logger.error(e.message)
           failures << record
           nil
         end
@@ -120,7 +122,8 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
         begin
           future.get()
         rescue => e
-          logger.warn("PulsarProducer.send() failed: #{e}", :exception => e)
+          logger.error("PulsarProducer.send() failed: #{e}", :exception => e)
+          logger.error(e.message)
           if !e.to_s.include? "Java.lang.IllegalStateException: recycled already"
             failures << batch[i]
           end
