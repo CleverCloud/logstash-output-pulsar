@@ -15,8 +15,6 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
 
   config_name 'pulsar'
 
-  default :codec, 'plain'
-
   # pulsar client configuration
   config :allow_tls_insecure_connection, :validate => :boolean, :default => false
   config :auth_plugin_class_name, :validate => :string, :default => ""
@@ -44,6 +42,7 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
   # pulsar message configuration
   config :message_key, :validate => :string
   config :message_properties, :validate => :hash, :default => {}
+  config :message, :validate => :string
 
   # pulsar plugin configuration
   config :retries, :validate => :number
@@ -64,7 +63,7 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
     @producer = create_producer
 
     @codec.on_event do |event, data|
-      write_to_pulsar(event, data.to_java, java.util.HashMap.new(@message_properties))
+      write_to_pulsar(event, data)
     end
   end
 
@@ -112,6 +111,8 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
         begin
           record.sendAsync()
         rescue org.apache.pulsar.client.api.PulsarClientException => e
+          logger.error("PulsarProducer.send() failed: #{e}", :exception => e)
+          logger.error(e.message)
           failures << record
           nil
         end
@@ -121,13 +122,16 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
         begin
           future.get()
         rescue => e
-          logger.warn("PulsarProducer.send() failed: #{e}", :exception => e)
-          failures << batch[i]
+          logger.error("PulsarProducer.send() failed: #{e}", :exception => e)
+          logger.error(e.message)
+          if !e.to_s.include? "Java.lang.IllegalStateException: recycled already"
+            failures << batch[i]
+          end
         end
       end
 
       # No failures? Cool. Let's move on.
-      break
+      break if failures.empty?
 
       # Otherwise, retry with any failed transmissions
       if remaining.nil? || remaining >= 0
@@ -146,16 +150,20 @@ class LogStash::Outputs::Pulsar < LogStash::Outputs::Base
   end
 
   private
-  def write_to_pulsar(event, serialized_data, serialized_properties)
+  def sprintf_hash(event, myhash)
+    Hash[myhash.map{|(k,v)| [k,event.sprintf(v)]}]
+  end
+
+  def write_to_pulsar(event, data)
     if @message_key.nil?
       record = @producer.newMessage()
-        .value(serialized_data)
-        .properties(serialized_properties)
+        .value(event.to_json)
+        .properties(java.util.HashMap.new(sprintf_hash(event, @message_properties)))
     else
       record = @producer.newMessage()
         .key(event.sprintf(@message_key))
-        .value(serialized_data)
-        .properties(serialized_properties)
+        .value(event.to_json)
+        .properties(java.util.HashMap.new(sprintf_hash(event, @message_properties)))
     end
 
     prepare(record)
