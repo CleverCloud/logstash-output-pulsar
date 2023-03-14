@@ -1,0 +1,6 @@
+vendor
+lib/**
+lib/logstash-output-pulsar_jars.rb
+!lib/logstash/**
+Gemfile.lock
+*.gem
