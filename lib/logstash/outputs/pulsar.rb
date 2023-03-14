@@ -1,7 +1,7 @@
 require 'logstash/namespace'
 require 'logstash/outputs/base'
 require 'java'
-require 'logstash-output-pulsar_jars.rb'
+require 'logstash-output-pulsar_jars'
 
 java_import org.apache.pulsar.client.api.PulsarClient
 java_import org.apache.pulsar.client.api.CompressionType
